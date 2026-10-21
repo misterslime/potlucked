@@ -1,0 +1,16 @@
+{
+    "variants": {
+        "heated=false,filled=false": {
+            "model": "potlucked:block/stew_pot"
+        },
+        "heated=true,filled=false": {
+            "model": "potlucked:block/stew_pot_heated"
+        },
+        "heated=false,filled=true": {
+            "model": "potlucked:block/stew_pot_filled"
+        },
+        "heated=true,filled=true": {
+            "model": "potlucked:block/stew_pot_filled_heated"
+        }
+    }
+}

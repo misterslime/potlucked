@@ -1,0 +1,13 @@
+{
+  "itemGroup.potlucked": "Potlucked",
+  "block.potlucked.stew_pot": "Stew Pot",
+  "item.potlucked.example_item": "Example Item",
+
+  "potlucked.configuration.title": "Potlucked Configs",
+  "potlucked.configuration.section.potlucked.common.toml": "Potlucked Configs",
+  "potlucked.configuration.section.potlucked.common.toml.title": "Potlucked Configs",
+  "potlucked.configuration.items": "Item List",
+  "potlucked.configuration.logDirtBlock": "Log Dirt Block",
+  "potlucked.configuration.magicNumberIntroduction": "Magic Number Text",
+  "potlucked.configuration.magicNumber": "Magic Number"
+}

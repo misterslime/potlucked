@@ -1,0 +1,6 @@
+{
+    "parent": "minecraft:block/cube_all",
+    "textures": {
+        "all": "potlucked:block/stew_pot_heated"
+    }
+}
