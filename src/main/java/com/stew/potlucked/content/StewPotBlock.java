@@ -1,5 +1,6 @@
 package com.stew.potlucked.content;
 
+import com.mojang.serialization.MapCodec;
 import com.stew.potlucked.registries.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -24,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class StewPotBlock extends Block implements EntityBlock {
+    public static final MapCodec<StewPotBlock> CODEC = simpleCodec(StewPotBlock::new);
+
     public static final BooleanProperty HEATED = BooleanProperty.create("heated");
     public static final BooleanProperty FILLED = BooleanProperty.create("filled");
 
@@ -32,7 +35,7 @@ public class StewPotBlock extends Block implements EntityBlock {
     private static <E extends BlockEntity, A extends BlockEntity> @Nullable BlockEntityTicker<A> createTickerHelper(
             BlockEntityType<A> type, BlockEntityType<E> checkedType, BlockEntityTicker<? super E> ticker
     ) {
-        // ?????? scary wtf why does java jhave no way to handle this
+        // ?????? scary wtf why does java have no way to handle this
         return checkedType == type ? (BlockEntityTicker<A>) ticker : null;
     }
 
@@ -70,17 +73,38 @@ public class StewPotBlock extends Block implements EntityBlock {
     }
 
     @Override
+    protected void onRemove(@NotNull BlockState state, @NotNull Level level,
+                            @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
+        if (state.getBlock() != newState.getBlock() &&
+                level.getBlockEntity(pos) instanceof StewPotBlockEntity stewPotBlockEntity) {
+            stewPotBlockEntity.drops();
+            level.updateNeighbourForOutputSignal(pos, this);
+        }
+
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
     protected @NotNull ItemInteractionResult useItemOn(
             @NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level,
             @NotNull BlockPos pos, @NotNull Player player,
             @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult
     ) {
-        if (stack.getCapability(Capabilities.FluidHandler.ITEM) == null)
+        if (!(level.getBlockEntity(pos) instanceof StewPotBlockEntity stewPotBlockEntity))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        if (stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
+            boolean tryInsert = stewPotBlockEntity.tryInteract(pos, player, stack);
+            return tryInsert ? ItemInteractionResult.SUCCESS : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
 
         // todo: allow water bottles to add/get water from the stew pot
         boolean interaction = FluidUtil.interactWithFluidHandler(player, hand, level, pos, null);
-
         return interaction ? ItemInteractionResult.SUCCESS : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    @Override
+    protected @NotNull MapCodec<? extends Block> codec() {
+        return CODEC;
     }
 }

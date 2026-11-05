@@ -62,5 +62,12 @@ public class Potlucked {
                 BlockEntityRegistry.STEW_POT_BLOCK_ENTITY.get(),
                 (blockEntity, side) -> blockEntity.fluidTank
         );
+
+
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                BlockEntityRegistry.STEW_POT_BLOCK_ENTITY.get(),
+                (blockEntity, side) -> blockEntity.combinedHandler
+        );
     }
 }
