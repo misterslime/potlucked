@@ -1,10 +1,14 @@
 package com.stew.potlucked.content;
 
 import com.mojang.serialization.MapCodec;
+import com.stew.potlucked.gui.StewPotMenu;
 import com.stew.potlucked.registries.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -93,14 +97,28 @@ public class StewPotBlock extends Block implements EntityBlock {
         if (!(level.getBlockEntity(pos) instanceof StewPotBlockEntity stewPotBlockEntity))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
+        if (player.isCrouching() && !level.isClientSide())
+        {
+            ((ServerPlayer) player).openMenu(new SimpleMenuProvider(stewPotBlockEntity, Component.literal("Stew Pot")), pos);
+            return ItemInteractionResult.SUCCESS;
+        }
+
         if (stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
             boolean tryInsert = stewPotBlockEntity.tryInteract(pos, player, stack);
-            return tryInsert ? ItemInteractionResult.SUCCESS : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+            if (!tryInsert && !level.isClientSide())
+                ((ServerPlayer) player).openMenu(new SimpleMenuProvider(stewPotBlockEntity, Component.literal("Stew Pot")), pos);
+
+            return ItemInteractionResult.SUCCESS;
         }
 
         // todo: allow water bottles to add/get water from the stew pot
         boolean interaction = FluidUtil.interactWithFluidHandler(player, hand, level, pos, null);
-        return interaction ? ItemInteractionResult.SUCCESS : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        if (!interaction && !level.isClientSide())
+            ((ServerPlayer) player).openMenu(new SimpleMenuProvider(stewPotBlockEntity, Component.literal("Stew Pot")), pos);
+
+        return ItemInteractionResult.SUCCESS;
     }
 
     @Override

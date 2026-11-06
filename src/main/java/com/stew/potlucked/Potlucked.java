@@ -1,9 +1,6 @@
 package com.stew.potlucked;
 
-import com.stew.potlucked.registries.BlockEntityRegistry;
-import com.stew.potlucked.registries.BlockRegistry;
-import com.stew.potlucked.registries.CreativeTabRegistry;
-import com.stew.potlucked.registries.ItemRegistry;
+import com.stew.potlucked.registries.*;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
@@ -34,6 +31,7 @@ public class Potlucked {
         ItemRegistry.ITEMS.register(modEventBus);
         CreativeTabRegistry.CREATIVE_MODE_TABS.register(modEventBus);
         BlockEntityRegistry.BLOCK_ENTITY_TYPES.register(modEventBus);
+        MenuTypeRegistry.MENU_TYPES.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }

@@ -1,9 +1,11 @@
 package com.stew.potlucked.content;
 
+import com.stew.potlucked.gui.StewPotMenu;
 import com.stew.potlucked.registries.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -12,8 +14,11 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -27,8 +32,9 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class StewPotBlockEntity extends BlockEntity {
+public class StewPotBlockEntity extends BlockEntity implements MenuProvider {
     public static final int BOWL_SLOT = 0;
     public static final int SHOVEL_STICK_SLOT = 1;
 
@@ -72,7 +78,7 @@ public class StewPotBlockEntity extends BlockEntity {
         }
     };
 
-    public final CombinedInvWrapper combinedHandler = new CombinedInvWrapper(inventoryHandler, toolsHandler);
+    public final CombinedInvWrapper combinedHandler = new CombinedInvWrapper(toolsHandler, inventoryHandler);
 
     // Contains water for the pot block.
     public final FluidTank fluidTank = new FluidTank(1000, stack -> stack.getFluid() == Fluids.WATER) {
@@ -141,6 +147,16 @@ public class StewPotBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    @Override
+    public @NotNull Component getDisplayName() {
+        return Component.literal("Stew Pot");
+    }
+
+    @Override
+    public @NotNull AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+        return new StewPotMenu(i, inventory, this);
+    }
+
     // returns true if either tool insertion or ingredient insertion succeeds or if you can get the bowl
     // from the bowl slot.
     public boolean tryInteract(@NotNull BlockPos pos, @NotNull Player player, @NotNull ItemStack stack) {
@@ -181,7 +197,7 @@ public class StewPotBlockEntity extends BlockEntity {
                 toolsHandler.getStackInSlot(SHOVEL_STICK_SLOT).isEmpty())
         {
             toolsHandler.insertItem(SHOVEL_STICK_SLOT, stack.copy(), false);
-            stack.shrink(1);
+            stack.shrink(stack.getCount());
             assert this.level != null;
             this.level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
             return true;
@@ -200,7 +216,7 @@ public class StewPotBlockEntity extends BlockEntity {
                 continue;
 
             inventoryHandler.insertItem(i, stack.copy(), false);
-            stack.shrink(1);
+            stack.shrink(stack.getCount());
             assert this.level != null;
             this.level.playSound(player, pos, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 1f, 2f);
 
