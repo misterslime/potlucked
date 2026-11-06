@@ -1,7 +1,7 @@
 package com.stew.potlucked.client;
 
 import com.stew.potlucked.Potlucked;
-import com.stew.potlucked.gui.StewPotScreen;
+import com.stew.potlucked.client.screens.StewPotScreen;
 import com.stew.potlucked.registries.MenuTypeRegistry;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;

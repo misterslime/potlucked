@@ -16,15 +16,17 @@ import org.jetbrains.annotations.NotNull;
 public class StewPotMenu extends AbstractContainerMenu {
     public final StewPotBlockEntity blockEntity;
     private final Level level;
+    private final ContainerData data;
 
     public StewPotMenu(int containerId, Inventory inventory, FriendlyByteBuf extraData) {
-        this(containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
+        this(containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(2));
     }
 
-    public StewPotMenu(int containerId, Inventory inventory, BlockEntity blockEntity) {
+    public StewPotMenu(int containerId, Inventory inventory, BlockEntity blockEntity, ContainerData data) {
         super(MenuTypeRegistry.STEW_POT_MENU.get(), containerId);
         this.blockEntity = (StewPotBlockEntity) blockEntity;
         this.level = inventory.player.level();
+        this.data = data;
 
         addPlayerInventory(inventory);
         addPlayerHotbar(inventory);
@@ -41,6 +43,20 @@ public class StewPotMenu extends AbstractContainerMenu {
 
         this.addSlot(new SlotItemHandler(this.blockEntity.toolsHandler, StewPotBlockEntity.BOWL_SLOT, 21, 17));
         this.addSlot(new SlotItemHandler(this.blockEntity.toolsHandler, StewPotBlockEntity.SHOVEL_STICK_SLOT, 138, 17));
+
+        this.addDataSlots(this.data);
+    }
+
+    public boolean hasWater() {
+        return this.data.get(0) > 0f;
+    }
+
+    public int getScaledWaterProgress() {
+        int progress = this.data.get(0);
+        int maxProgress = this.data.get(1);
+        int waterPixelSize = 52;
+
+        return maxProgress != 0 && progress != 0 ? progress * waterPixelSize / maxProgress : 0;
     }
 
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons

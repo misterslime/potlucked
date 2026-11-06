@@ -19,6 +19,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
@@ -37,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 public class StewPotBlockEntity extends BlockEntity implements MenuProvider {
     public static final int BOWL_SLOT = 0;
     public static final int SHOVEL_STICK_SLOT = 1;
+    public static final int TANK_CAPACITY = 1000;
 
     // Contains ingredients and inputs into the recipe.
     public final ItemStackHandler inventoryHandler = new ItemStackHandler(9) {
@@ -81,7 +84,7 @@ public class StewPotBlockEntity extends BlockEntity implements MenuProvider {
     public final CombinedInvWrapper combinedHandler = new CombinedInvWrapper(toolsHandler, inventoryHandler);
 
     // Contains water for the pot block.
-    public final FluidTank fluidTank = new FluidTank(1000, stack -> stack.getFluid() == Fluids.WATER) {
+    public final FluidTank fluidTank = new FluidTank(TANK_CAPACITY, stack -> stack.getFluid() == Fluids.WATER) {
         @Override
         protected void onContentsChanged() {
             if (level == null)
@@ -107,9 +110,41 @@ public class StewPotBlockEntity extends BlockEntity implements MenuProvider {
         }
     };
 
+    private final ContainerData data;
+
     // the constructor is pascal case and the methods are camel case i hate my life
     public StewPotBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityRegistry.STEW_POT_BLOCK_ENTITY.get(), pos, state);
+
+        this.data = new ContainerData() {
+            @Override
+            public int get(int i) {
+                return switch (i) {
+                    case 0 -> StewPotBlockEntity.this.fluidTank.getFluidAmount();
+                    case 1 -> StewPotBlockEntity.this.fluidTank.getCapacity();
+                    default -> 0;
+                };
+            }
+
+            @Override
+            public void set(int i, int value) {
+                switch (i) {
+                    case 0:
+                        FluidStack fluid = StewPotBlockEntity.this.fluidTank.getFluid();
+                        fluid.setAmount(value);
+                        StewPotBlockEntity.this.fluidTank.setFluid(fluid);
+                        break;
+                    case 1:
+                        StewPotBlockEntity.this.fluidTank.setCapacity(value);
+                        break;
+                }
+            }
+
+            @Override
+            public int getCount() {
+                return 2;
+            }
+        };
     }
 
     // Read values from the passed CompoundTag here.
@@ -154,7 +189,7 @@ public class StewPotBlockEntity extends BlockEntity implements MenuProvider {
 
     @Override
     public @NotNull AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
-        return new StewPotMenu(i, inventory, this);
+        return new StewPotMenu(i, inventory, this, this.data);
     }
 
     // returns true if either tool insertion or ingredient insertion succeeds or if you can get the bowl
