@@ -3,6 +3,7 @@ package com.stew.potlucked.client.screens;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.stew.potlucked.Potlucked;
+import com.stew.potlucked.client.registries.ShaderRegistry;
 import com.stew.potlucked.content.StewPotBlock;
 import com.stew.potlucked.gui.StewPotMenu;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
-import org.joml.Vector4i;
 
 public class StewPotScreen extends AbstractContainerScreen<StewPotMenu> {
     private static final ResourceLocation GUI_TEXTURE =
@@ -23,7 +23,6 @@ public class StewPotScreen extends AbstractContainerScreen<StewPotMenu> {
 
     private static final ResourceLocation WATER_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Potlucked.MOD_ID, "textures/gui/containers/stew_pot_water.png");
-
 
     public StewPotScreen(StewPotMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -64,7 +63,8 @@ public class StewPotScreen extends AbstractContainerScreen<StewPotMenu> {
         float maxV = ((float)fluidHeight) / (float) 52;
 
         RenderSystem.setShaderTexture(0, WATER_TEXTURE);
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShader(ShaderRegistry::getTankShader);
+
         Matrix4f matrix4f = guiGraphics.pose().last().pose();
         BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         bufferbuilder.addVertex(matrix4f, (float)x, (float)y, (float) 0).setUv(minU, minV).setColor(101, 84, 255, 255);
