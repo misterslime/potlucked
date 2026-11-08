@@ -7,6 +7,21 @@
     "uniforms": [
         { "name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
         { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
-        { "name": "ColorModulator", "type": "float", "count": 4, "values": [ 1.0, 1.0, 1.0, 1.0 ] }
+        { "name": "uTime", "type": "float", "count": 1, "values": [ 0.0 ] },
+        { "name": "ColorModulator", "type": "float", "count": 4, "values": [ 1.0, 1.0, 1.0, 1.0 ] },
+        { "name": "FrontFillColour", "type": "float", "count": 3, "values": [ 0.1, 0.2, 1.0 ] },
+        { "name": "BackFillColour", "type": "float", "count": 3, "values": [ 0.1, 0.0, 0.5 ] },
+        { "name": "ImageResolution", "type": "float", "count": 2, "values": [ 52.0, 52.0 ] },
+        { "name": "FillAnimationFrequency", "type": "float", "count": 1, "values": [ 4.0 ] },
+        { "name": "FillAnimationAmplitude", "type": "float", "count": 1, "values": [ 0.05 ] },
+        { "name": "WaveFrequency", "type": "float", "count": 1, "values": [ 3.0 ] },
+        { "name": "WaveAmplitude", "type": "float", "count": 1, "values": [ 0.05 ] },
+        { "name": "WaveAnimation", "type": "float", "count": 1, "values": [ 2.0 ] },
+        { "name": "AnimatedVerticalBandStrength", "type": "float", "count": 1, "values": [ 0.125 ] },
+        { "name": "FillProgressAnimationFrequency", "type": "float", "count": 1, "values": [ 1.0 ] },
+        { "name": "FillProgressAnimationAmplitude", "type": "float", "count": 1, "values": [ 0.025 ] },
+        { "name": "FresnelPower", "type": "float", "count": 1, "values": [ 3.0 ] },
+        { "name": "FresnelOffset", "type": "float", "count": 1, "values": [ 0.02 ] },
+        { "name": "FillProgress", "type": "float", "count": 1, "values": [ 0.0 ] }
     ]
 }
