@@ -10,6 +10,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +20,8 @@ import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
 
 public class StewPotScreen extends AbstractContainerScreen<StewPotMenu> {
     private static final ResourceLocation GUI_TEXTURE =
@@ -51,33 +54,44 @@ public class StewPotScreen extends AbstractContainerScreen<StewPotMenu> {
         if (!menu.hasWater())
             return;
 
-        int fluidHeight = menu.getScaledWaterProgress();
+        float fluidHeight = menu.getWaterProgress();
 
         BlockState state = menu.blockEntity.getBlockState();
 
-        Vec3i color = new Vec3i(101, 84, 255);
+        Vector3f color = new Vector3f(0.2F, 0.208F, 0.929F);
 
-        if (state.getValue(StewPotBlock.HEATED))
-            color = new Vec3i(255, 255, 255);
-
-        drawStewPotWater(guiGraphics, x + 62, y + 17, 0.67F);
+        drawStewPotWater(
+                guiGraphics, x + 62, y + 17, 0.67F, color, 1.0F,
+                -0.05F, -2.0F, 3.14159F, -1.0F, -0.125F, -1.0F);
     }
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+
+        if (menu.hasWater())
+        {
+            int x = (width - imageWidth) / 2;
+            int y = (height - imageHeight) / 2;
+
+            Vector3f color = new Vector3f(0.396F, 0.329F, 1.0F);
+
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(-1.0F, 0.0F, 400.0F);
+
+            drawStewPotWater(
+                    guiGraphics, x + 62, y + 17, 0.67F, color, 0.521F,
+                    0.05F, 2.0F, 0.0F, 1.0F, 0.125F, -1.0F);
+
+            guiGraphics.pose().popPose();
+        }
+
         this.renderTooltip(guiGraphics, mouseX, mouseY);
-
-
-        int x = (width - imageWidth) / 2;
-        int y = (height - imageHeight) / 2;
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0.0F, 0.0F, 400.0F);
-        drawStewPotWater(guiGraphics, x + 62, y + 17, 0.25F);
-        guiGraphics.pose().popPose();
     }
 
-    void drawStewPotWater(@NotNull GuiGraphics guiGraphics, int x, int y, float progress) {
+    void drawStewPotWater(@NotNull GuiGraphics guiGraphics, int x, int y,
+                          float progress, Vector3f fillColor, float alpha, float fillAmplitude, float waveAnimation,
+                          float wavePhase, float fillMultiplier, float verticalBandStrength, float fresnelOffset) {
         int x2 = x + 52;
         int y2 = y + 52;
         float minU = (0.0F) / (float) 52;
@@ -85,23 +99,30 @@ public class StewPotScreen extends AbstractContainerScreen<StewPotMenu> {
         float minV = (0.0F) / (float) 52;
         float maxV = 1.0F;
 
+
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         RenderSystem.setShaderTexture(0, WATER_TEXTURE);
         RenderSystem.setShader(ShaderRegistry::getTankShader);
-        RenderSystem.getShader().getUniform("FillProgress").set(progress);
         RenderSystem.getShader().getUniform("uTime").set(time);
+        RenderSystem.getShader().getUniform("FillProgress").set(progress);
+        RenderSystem.getShader().getUniform("FillColour").set(fillColor.x, fillColor.y, fillColor.z);
+        RenderSystem.getShader().getUniform("FillAnimationAmplitude").set(fillAmplitude);
+        RenderSystem.getShader().getUniform("FillAnimationMultiplier").set(fillMultiplier);
+        RenderSystem.getShader().getUniform("WavePhase").set(wavePhase);
+        RenderSystem.getShader().getUniform("AnimatedVerticalBandStrength").set(verticalBandStrength);
+        RenderSystem.getShader().getUniform("FresnelOffset").set(fresnelOffset);
+        RenderSystem.getShader().getUniform("WaveAnimation").set(waveAnimation);
+        RenderSystem.getShader().getUniform("DrawAlpha").set(alpha);
 
         Matrix4f matrix4f = guiGraphics.pose().last().pose();
         BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.addVertex(matrix4f, (float)x, (float)y, (float) 0).setUv(minU, minV).setColor(255, 255, 255, 255);
-        bufferbuilder.addVertex(matrix4f, (float)x, (float)y2, (float) 0).setUv(minU, maxV).setColor(255, 255, 255, 255);
-        bufferbuilder.addVertex(matrix4f, (float)x2, (float)y2, (float) 0).setUv(maxU, maxV).setColor(255, 255, 255, 255);
-        bufferbuilder.addVertex(matrix4f, (float)x2, (float)y, (float) 0).setUv(maxU, minV).setColor(255, 255, 255, 255);
+        bufferbuilder.addVertex(matrix4f, (float)x, (float)y, (float) 0).setUv(minU, minV).setColor(255, 255, 255, 255* alpha);
+        bufferbuilder.addVertex(matrix4f, (float)x, (float)y2, (float) 0).setUv(minU, maxV).setColor(255, 255, 255, 255* alpha);
+        bufferbuilder.addVertex(matrix4f, (float)x2, (float)y2, (float) 0).setUv(maxU, maxV).setColor(255, 255, 255, 255* alpha);
+        bufferbuilder.addVertex(matrix4f, (float)x2, (float)y, (float) 0).setUv(maxU, minV).setColor(255, 255, 255, 255 * alpha);
         BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-    }
 
-    public static void drawStewPotWaterOnScreen(@NotNull StewPotScreen screen, @NotNull GuiGraphics guiGraphics, float progress) {
-        int x = (screen.width - screen.imageWidth) / 2;
-        int y = (screen.height - screen.imageHeight) / 2;
-        screen.drawStewPotWater(guiGraphics, x, y, progress);
+
     }
 }

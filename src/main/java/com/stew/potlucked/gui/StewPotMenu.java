@@ -51,12 +51,11 @@ public class StewPotMenu extends AbstractContainerMenu {
         return this.data.get(0) > 0f;
     }
 
-    public int getScaledWaterProgress() {
-        int progress = this.data.get(0);
-        int maxProgress = this.data.get(1);
-        int waterPixelSize = 52;
+    public float getWaterProgress() {
+        float progress = (float)this.data.get(0);
+        float maxProgress = (float)this.data.get(1);
 
-        return maxProgress != 0 && progress != 0 ? progress * waterPixelSize / maxProgress : 0;
+        return progress / maxProgress;
     }
 
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons

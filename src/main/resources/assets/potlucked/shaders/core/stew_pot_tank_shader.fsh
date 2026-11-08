@@ -20,11 +20,12 @@ uniform sampler2D Sampler0;
 uniform float uTime;
 
 uniform vec4 ColorModulator;
-uniform vec3 FrontFillColour;
-uniform vec3 BackFillColour;
+uniform vec3 FillColour;
 uniform vec2 ImageResolution;
 uniform float FillAnimationFrequency;
 uniform float FillAnimationAmplitude;
+uniform float FillAnimationMultiplier;
+uniform float WavePhase;
 uniform float WaveFrequency;
 uniform float WaveAmplitude;
 uniform float WaveAnimation;
@@ -33,6 +34,7 @@ uniform float FillProgressAnimationFrequency;
 uniform float FillProgressAnimationAmplitude;
 uniform float FresnelPower;
 uniform float FresnelOffset;
+uniform float DrawAlpha;
 uniform float FillProgress;
 
 in vec2 texCoord0;
@@ -42,11 +44,11 @@ out vec4 fragColor;
 
 void main() {
 
-    // Centered, aspect ratio-corrected, normalized pixel coordinates [0.0, 1.0].
-    vec2 uv = (texCoord0 - 0.5) * 2.0;
-
     // Pixelation.
-    uv = floor(uv * ImageResolution) / ImageResolution;
+    vec2 modUv = floor(texCoord0 * ImageResolution) / ImageResolution;
+
+    // Centered, aspect ratio-corrected, normalized pixel coordinates [0.0, 1.0].
+    vec2 uv = (modUv - 0.5) * 2.0;
 
     // Flip vertically.
     uv.y *= -1.0;
@@ -55,11 +57,8 @@ void main() {
     float fillAnimation = sin(uTime * FillAnimationFrequency) * FillAnimationAmplitude; // for back wave set FillAnimationAmplitude to a negative number
 
     // Waves as repeating sine/band offsets to the horizontal gradient.
-    float frontWavePhase = (uTime * WaveAnimation) + uv.x; // for back wave set WaveAnimation to a negative number
-    float backWavePhase = (uTime * -WaveAnimation) + uv.x;
-
-    float frontWaves = sin(frontWavePhase * WaveFrequency) * WaveAmplitude; // for back wave set WavePhase to PI
-    float backWaves = sin(backWavePhase * WaveFrequency + PI) * WaveAmplitude;
+    float wavePhase = (uTime * WaveAnimation) + uv.x; // for back wave set WaveAnimation to a negative number
+    float waves = sin(wavePhase * WaveFrequency + WavePhase) * WaveAmplitude; // for back wave set WavePhase to PI
 
     float verticalBand = sin(uv.x + (PI * 0.5)) - 0.3;
     verticalBand = smoothstep(0.2, 1.2, verticalBand);
@@ -69,28 +68,27 @@ void main() {
 
     animatedVerticalBand *= sin(uTime * FillAnimationFrequency);
 
-    frontWaves += animatedVerticalBand;
-    backWaves -= animatedVerticalBand;
+    waves += animatedVerticalBand;
 
     // Pinch sides (mask by the vertical gradient band) so they don't move
-    fillAnimation *= verticalBand;
+    fillAnimation *= verticalBand * FillAnimationMultiplier; // set FillAnimationMultiplier to -1 or 1 depending on which side the layer is
 
     // Centered fill progress.
     float progress = FillProgress + sin((uTime * FillProgressAnimationFrequency) * PI) * FillProgressAnimationAmplitude;
     progress = (progress - 0.5) * 2.0;
 
-    float frontFill = step(uv.y, (fillAnimation + frontWaves) + progress);
-    float backFill = step(uv.y, (-fillAnimation + backWaves) + progress);
-
-    // Mask back fill to only parts that would be visible separate from frontFill.
-    backFill = clamp(backFill - frontFill, 0.0, 1.0);
-    float fill = frontFill + backFill;
+    float fill = step(uv.y, (fillAnimation + waves) + progress);
+    fill = clamp(fill, 0.0, 1.0);
 
     // Apply fresnel shading to the front layer to imply a cylindrical shape.
-    float fresnel = (easeInCirc(abs(uv.x)) + FresnelOffset) * (fill);
+    float fresnel = (easeInCirc(abs(uv.x)) + FresnelOffset) * fill; // set FresnelOffset to -1 to remove the fresnel
     fresnel = clamp(pow(fresnel, FresnelPower), 0.0, 1.0);
 
-    vec4 color = vec4((frontFill * mix(FrontFillColour, vec3(0.0), fresnel)) + (backFill * BackFillColour), fill);
+    vec4 color = vec4(fill * mix(FillColour, vec3(0.0), fresnel), fill * DrawAlpha);
+
+    if (fill == 0.0) {
+        discard;
+    }
 
     vec4 texColor = texture(Sampler0, texCoord0) * vertexColor;
 
