@@ -9,6 +9,7 @@ import com.stew.potlucked.gui.StewPotMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Vec3i;
@@ -61,7 +62,7 @@ public class StewPotScreen extends AbstractContainerScreen<StewPotMenu> {
         Vector3f color = new Vector3f(0.2F, 0.208F, 0.929F);
 
         drawStewPotWater(
-                guiGraphics, x + 62, y + 17, 0.67F, color, 1.0F,
+                guiGraphics, x + 59, y + 14, 0.67F, color, 1.0F,
                 -0.05F, -2.0F, 3.14159F, -1.0F, -0.125F, -1.0F);
     }
 
@@ -80,7 +81,7 @@ public class StewPotScreen extends AbstractContainerScreen<StewPotMenu> {
             guiGraphics.pose().translate(-1.0F, 0.0F, 400.0F);
 
             drawStewPotWater(
-                    guiGraphics, x + 62, y + 17, 0.67F, color, 0.521F,
+                    guiGraphics, x + 59, y + 14, 0.67F, color, 0.521F,
                     0.05F, 2.0F, 0.0F, 1.0F, 0.125F, -1.0F);
 
             guiGraphics.pose().popPose();
@@ -92,11 +93,11 @@ public class StewPotScreen extends AbstractContainerScreen<StewPotMenu> {
     void drawStewPotWater(@NotNull GuiGraphics guiGraphics, int x, int y,
                           float progress, Vector3f fillColor, float alpha, float fillAmplitude, float waveAnimation,
                           float wavePhase, float fillMultiplier, float verticalBandStrength, float fresnelOffset) {
-        int x2 = x + 52;
-        int y2 = y + 52;
-        float minU = (0.0F) / (float) 52;
+        int x2 = x + 58;
+        int y2 = y + 58;
+        float minU = (0.0F) / (float) 58;
         float maxU = 1.0F;
-        float minV = (0.0F) / (float) 52;
+        float minV = (0.0F) / (float) 58;
         float maxV = 1.0F;
 
 
@@ -122,7 +123,5 @@ public class StewPotScreen extends AbstractContainerScreen<StewPotMenu> {
         bufferbuilder.addVertex(matrix4f, (float)x2, (float)y2, (float) 0).setUv(maxU, maxV).setColor(255, 255, 255, 255* alpha);
         bufferbuilder.addVertex(matrix4f, (float)x2, (float)y, (float) 0).setUv(maxU, minV).setColor(255, 255, 255, 255 * alpha);
         BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-
-
     }
 }

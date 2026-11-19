@@ -10,7 +10,7 @@
         { "name": "uTime", "type": "float", "count": 1, "values": [ 0.0 ] },
         { "name": "ColorModulator", "type": "float", "count": 4, "values": [ 1.0, 1.0, 1.0, 1.0 ] },
         { "name": "FillColour", "type": "float", "count": 3, "values": [ 0.1, 0.2, 1.0 ] },
-        { "name": "ImageResolution", "type": "float", "count": 2, "values": [ 52.0, 52.0 ] },
+        { "name": "ImageResolution", "type": "float", "count": 2, "values": [ 58.0, 58.0 ] },
         { "name": "FillAnimationFrequency", "type": "float", "count": 1, "values": [ 4.0 ] },
         { "name": "FillAnimationAmplitude", "type": "float", "count": 1, "values": [ 0.05 ] },
         { "name": "FillAnimationMultiplier", "type": "float", "count": 1, "values": [ 1.0 ] },

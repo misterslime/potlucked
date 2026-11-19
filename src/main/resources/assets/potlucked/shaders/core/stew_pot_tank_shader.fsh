@@ -13,6 +13,7 @@
 #version 150
 
 #define PI 3.14159
+#define antialiasedstep(b, a) smoothstep(a, a - (fwidth(b) * 2.0), b)
 #define easeInCirc(a) 1. - sqrt(1. - pow(a, 2.))
 
 uniform sampler2D Sampler0;
@@ -53,6 +54,10 @@ void main() {
     // Flip vertically.
     uv.y *= -1.0;
 
+
+    // Pixelation.
+    //uv = floor(uv * ImageResolution) / ImageResolution;
+
     // Progress/fill. Animated.
     float fillAnimation = sin(uTime * FillAnimationFrequency) * FillAnimationAmplitude; // for back wave set FillAnimationAmplitude to a negative number
 
@@ -77,7 +82,7 @@ void main() {
     float progress = FillProgress + sin((uTime * FillProgressAnimationFrequency) * PI) * FillProgressAnimationAmplitude;
     progress = (progress - 0.5) * 2.0;
 
-    float fill = step(uv.y, (fillAnimation + waves) + progress);
+    float fill = antialiasedstep(uv.y, (fillAnimation + waves) + progress);
     fill = clamp(fill, 0.0, 1.0);
 
     // Apply fresnel shading to the front layer to imply a cylindrical shape.
