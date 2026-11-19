@@ -1,7 +1,6 @@
 package com.stew.potlucked.content;
 
 import com.mojang.serialization.MapCodec;
-import com.stew.potlucked.gui.StewPotMenu;
 import com.stew.potlucked.registries.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -69,10 +68,14 @@ public class StewPotBlock extends Block implements EntityBlock {
         return new StewPotBlockEntity(pos, state);
     }
 
+    @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
     ) {
+        if (level.isClientSide)
+            return null;
+
         return createTickerHelper(type, BlockEntityRegistry.STEW_POT_BLOCK_ENTITY.get(), StewPotBlockEntity::tick);
     }
 

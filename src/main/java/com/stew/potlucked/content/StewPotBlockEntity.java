@@ -34,7 +34,6 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class StewPotBlockEntity extends BlockEntity implements MenuProvider {
     public static final int BOWL_SLOT = 0;
@@ -184,7 +183,7 @@ public class StewPotBlockEntity extends BlockEntity implements MenuProvider {
 
     @Override
     public @NotNull Component getDisplayName() {
-        return Component.literal("Stew Pot");
+        return Component.translatable("block.potlucked.stew_pot");
     }
 
     @Override
