@@ -1,5 +1,6 @@
 package com.stew.potlucked.content;
 
+import com.stew.potlucked.Potlucked;
 import com.stew.potlucked.gui.StewPotMenu;
 import com.stew.potlucked.registries.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
@@ -56,7 +57,7 @@ public class StewPotBlockEntity extends BlockEntity implements MenuProvider {
     // Contains bowl output and shovel/stick stir input.
     public final ItemStackHandler toolsHandler = new ItemStackHandler(2) {
         @Override
-        protected int getStackLimit(int slot, @NotNull ItemStack stack) {
+        public int getSlotLimit(int slot) {
             return 1;
         }
 
@@ -291,5 +292,30 @@ public class StewPotBlockEntity extends BlockEntity implements MenuProvider {
             BlockState newState = state.setValue(StewPotBlock.HEATED, false);
             level.setBlock(pos, newState, Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS);
         }
+    }
+
+    public static void tryCraft(StewPotBlockEntity blockEntity, BlockState state) {
+
+        if (!canPotCook(blockEntity, state) || !hasRecipe()) {
+            Potlucked.LOGGER.info("Stew pot conditions inadequate for cooking.");
+            return;
+        }
+
+        craftStew();
+
+        Potlucked.LOGGER.info("Crafting successful!");
+    }
+
+    private static boolean hasRecipe() {
+        return false;
+    }
+
+    private static void craftStew() {
+    }
+
+    private static boolean canPotCook(StewPotBlockEntity blockEntity, BlockState state) {
+        return state.getValue(StewPotBlock.HEATED) && state.getValue(StewPotBlock.FILLED) &&
+                !blockEntity.toolsHandler.getStackInSlot(SHOVEL_STICK_SLOT).isEmpty() &&
+                !blockEntity.toolsHandler.getStackInSlot(BOWL_SLOT).isEmpty();
     }
 }

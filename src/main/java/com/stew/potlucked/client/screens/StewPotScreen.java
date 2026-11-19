@@ -47,15 +47,7 @@ public class StewPotScreen extends AbstractContainerScreen<StewPotMenu> {
             @Override
             public void onPress(@NotNull Button button) {
                 BlockState blockState = menu.blockEntity.getBlockState();
-
-                if (!blockState.getValue(StewPotBlock.HEATED) || !blockState.getValue(StewPotBlock.FILLED) ||
-                        menu.blockEntity.toolsHandler.getStackInSlot(StewPotBlockEntity.SHOVEL_STICK_SLOT).isEmpty() ||
-                        menu.blockEntity.toolsHandler.getStackInSlot(StewPotBlockEntity.BOWL_SLOT).isEmpty()) {
-                    Potlucked.LOGGER.info("Stew pot conditions inadequate for cooking.");
-                    return;
-                }
-
-                Potlucked.LOGGER.info("Crafting successful!");
+                StewPotBlockEntity.tryCraft(menu.blockEntity, blockState);
             }
         }).bounds(x + 128, y + 52, 35, 18).build());
     }
