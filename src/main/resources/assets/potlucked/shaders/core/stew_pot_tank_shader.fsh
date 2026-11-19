@@ -46,10 +46,10 @@ out vec4 fragColor;
 void main() {
 
     // Pixelation.
-    vec2 modUv = floor(texCoord0 * ImageResolution) / ImageResolution;
+    //vec2 modUv = floor(texCoord0 * ImageResolution) / ImageResolution;
 
     // Centered, aspect ratio-corrected, normalized pixel coordinates [0.0, 1.0].
-    vec2 uv = (modUv - 0.5) * 2.0;
+    vec2 uv = (texCoord0 - 0.5) * 2.0;
 
     // Flip vertically.
     uv.y *= -1.0;
