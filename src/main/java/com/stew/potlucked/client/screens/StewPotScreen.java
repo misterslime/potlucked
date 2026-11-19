@@ -5,20 +5,17 @@ import com.mojang.blaze3d.vertex.*;
 import com.stew.potlucked.Potlucked;
 import com.stew.potlucked.client.registries.ShaderRegistry;
 import com.stew.potlucked.content.StewPotBlock;
+import com.stew.potlucked.content.StewPotBlockEntity;
 import com.stew.potlucked.gui.StewPotMenu;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.event.ContainerScreenEvent;
-import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -37,6 +34,30 @@ public class StewPotScreen extends AbstractContainerScreen<StewPotMenu> {
         super(menu, playerInventory, title);
 
         this.time = 0.0F;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        this.addWidget(Button.builder(Component.translatable("block.potlucked.stew_pot.stir_button"), new Button.OnPress() {
+            @Override
+            public void onPress(@NotNull Button button) {
+                BlockState blockState = menu.blockEntity.getBlockState();
+
+                if (!blockState.getValue(StewPotBlock.HEATED) || !blockState.getValue(StewPotBlock.FILLED) ||
+                        menu.blockEntity.toolsHandler.getStackInSlot(StewPotBlockEntity.SHOVEL_STICK_SLOT).isEmpty() ||
+                        menu.blockEntity.toolsHandler.getStackInSlot(StewPotBlockEntity.BOWL_SLOT).isEmpty()) {
+                    Potlucked.LOGGER.info("Stew pot conditions inadequate for cooking.");
+                    return;
+                }
+
+                Potlucked.LOGGER.info("Crafting successful!");
+            }
+        }).bounds(x + 128, y + 52, 35, 18).build());
     }
 
     @Override

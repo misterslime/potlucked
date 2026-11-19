@@ -1,6 +1,7 @@
 {
   "itemGroup.potlucked": "Potlucked",
   "block.potlucked.stew_pot": "Stew Pot",
+  "block.potlucked.stew_pot.stir_button": "Stir Pot",
   "item.potlucked.example_item": "Example Item",
 
   "potlucked.configuration.title": "Potlucked Configs",
