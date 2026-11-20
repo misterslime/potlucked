@@ -32,6 +32,8 @@ public class Potlucked {
         CreativeTabRegistry.CREATIVE_MODE_TABS.register(modEventBus);
         BlockEntityRegistry.BLOCK_ENTITY_TYPES.register(modEventBus);
         MenuTypeRegistry.MENU_TYPES.register(modEventBus);
+        RecipeRegistry.RECIPE_SERIALIZERS.register(modEventBus);
+        RecipeRegistry.RECIPE_TYPES.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
