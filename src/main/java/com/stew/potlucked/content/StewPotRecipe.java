@@ -3,6 +3,7 @@ package com.stew.potlucked.content;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.stew.potlucked.Potlucked;
 import com.stew.potlucked.registries.RecipeRegistry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -13,7 +14,7 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public record StewPotRecipe(NonNullList<Ingredient> ingredients, ItemStack output) implements Recipe<CraftingInput> {
+public record StewPotRecipe(NonNullList<Ingredient> ingredients, ItemStack output) implements Recipe<StewPotRecipeInput> {
     // we need to:
     // read in a json file
 
@@ -23,21 +24,29 @@ public record StewPotRecipe(NonNullList<Ingredient> ingredients, ItemStack outpu
     }
 
     @Override
-    public boolean matches(@NotNull CraftingInput input, Level level) {
+    public boolean matches(@NotNull StewPotRecipeInput input, Level level) {
+
+        Potlucked.LOGGER.info("Checking if client side");
+
         if (level.isClientSide()) {
             return false;
         }
-        if (input.ingredientCount() != this.ingredients.size()) {
+
+
+        Potlucked.LOGGER.info("Is not client side");
+
+        if (input.input().size() != this.ingredients.size()) {
             return false;
         }
 
+        Potlucked.LOGGER.info("Is same size");
         return input.size() == 1 && this.ingredients.size() == 1
                 ? this.ingredients.getFirst().test(input.getItem(0))
                 : input.stackedContents().canCraft(this, null);
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull CraftingInput craftingInput, HolderLookup.@NotNull Provider provider) {
+    public @NotNull ItemStack assemble(@NotNull StewPotRecipeInput craftingInput, HolderLookup.@NotNull Provider provider) {
         return output.copy();
     }
 

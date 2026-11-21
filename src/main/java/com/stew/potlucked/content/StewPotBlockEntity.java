@@ -3,8 +3,10 @@ package com.stew.potlucked.content;
 import com.stew.potlucked.Potlucked;
 import com.stew.potlucked.gui.StewPotMenu;
 import com.stew.potlucked.registries.BlockEntityRegistry;
+import com.stew.potlucked.registries.RecipeRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -23,6 +25,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -35,6 +38,10 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class StewPotBlockEntity extends BlockEntity implements MenuProvider {
     public static final int BOWL_SLOT = 0;
@@ -295,22 +302,64 @@ public class StewPotBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public static void tryCraft(StewPotBlockEntity blockEntity, BlockState state) {
+        if (!canPotCook(blockEntity, state)) {
 
-        if (!canPotCook(blockEntity, state) || !hasRecipe()) {
-            Potlucked.LOGGER.info("Stew pot conditions inadequate for cooking.");
+            Potlucked.LOGGER.info("This pot can't cook");
             return;
         }
 
-        craftStew();
+        if (!hasRecipe(blockEntity)) {
+            Potlucked.LOGGER.info("Isnt a valid recipe");
+            return;
+        }
 
-        Potlucked.LOGGER.info("Crafting successful!");
+        Potlucked.LOGGER.info("YAY CRAFTED");
+        craftStew(blockEntity);
     }
 
-    private static boolean hasRecipe() {
-        return false;
+    private static boolean hasRecipe(StewPotBlockEntity blockEntity) {
+        Optional<RecipeHolder<StewPotRecipe>> recipe = getCurrentRecipe(blockEntity);
+
+        return recipe.isPresent();
     }
 
-    private static void craftStew() {
+    private static Optional<RecipeHolder<StewPotRecipe>> getCurrentRecipe(StewPotBlockEntity blockEntity) {
+        List<ItemStack> list = getItemStackListFromHandler(blockEntity.inventoryHandler);
+
+        assert blockEntity.level != null;
+        return blockEntity.level.getRecipeManager()
+                .getRecipeFor(RecipeRegistry.STEW_POT_TYPE.get(),
+                        new StewPotRecipeInput(list), blockEntity.level);
+    }
+
+    private static List<ItemStack> getItemStackListFromHandler(ItemStackHandler handler) {
+        List<ItemStack> list = new ArrayList<ItemStack>();
+
+        for (int i = 0; i < handler.getSlots(); i++) {
+            ItemStack stack = handler.getStackInSlot(i);
+
+            if (stack.isEmpty())
+                continue;
+
+            list.add(stack);
+        }
+
+        return list;
+    }
+
+    private static void craftStew(StewPotBlockEntity blockEntity) {
+        Optional<RecipeHolder<StewPotRecipe>> recipe = getCurrentRecipe(blockEntity);
+
+        if (recipe.isEmpty())
+            return;
+
+        ItemStack output = recipe.get().value().output();
+
+        blockEntity.toolsHandler.setStackInSlot(StewPotBlockEntity.BOWL_SLOT, output);
+
+        for (int i = 0; i < blockEntity.inventoryHandler.getSlots(); i++) {
+            blockEntity.inventoryHandler.extractItem(i, 1, false);
+        }
     }
 
     private static boolean canPotCook(StewPotBlockEntity blockEntity, BlockState state) {

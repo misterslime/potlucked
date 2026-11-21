@@ -1,0 +1,14 @@
+{
+    "type": "potlucked:stew_pot",
+    "ingredients": [
+        {
+            "item": "minecraft:brown_mushroom"
+        },
+        {
+            "item": "minecraft:red_mushroom"
+        }
+    ],
+    "result": {
+        "id": "minecraft:mushroom_stew"
+    }
+}
